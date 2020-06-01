@@ -1,0 +1,275 @@
+---
+output:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: xelatex
+  word_document: default
+  html_document: default
+mainfont: Verdana
+fontsize: 12pt
+classoption: portrait
+geometry: "left=1cm,right=1cm,top=0.6cm,bottom=0.6cm"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment=NA)
+```
+
+```{r}
+# A Prefix nulling hook.
+
+# Make sure to keep the default for normal processing.
+default_output_hook <- knitr::knit_hooks$get("output")
+
+# Output hooks handle normal R console output.
+knitr::knit_hooks$set( output = function(x, options) {
+
+  comment <- knitr::opts_current$get("comment")
+  if( is.na(comment) ) comment <- ""
+  can_null <- grepl( paste0( comment, "\\s*\\[\\d?\\]" ),
+                     x, perl = TRUE)
+  do_null <- isTRUE( knitr::opts_current$get("null_prefix") )
+  if( can_null && do_null ) {
+    # By default R print output aligns at the right brace.
+    align_index <- regexpr( "\\]", x )[1] - 1
+    # Two cases: start or newline
+    re <- paste0( "^.{", align_index, "}\\]")
+    rep <- comment
+    x <- gsub( re, rep,  x )
+    re <- paste0( "\\\n.{", align_index, "}\\]")
+    rep <- paste0( "\n", comment )
+    x <- gsub( re, rep,  x )
+  }
+
+  default_output_hook( x, options )
+
+})
+
+knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
+```
+
+```{r echo=FALSE, message=FALSE}
+
+setwd("/Users/usersgianazzi/Documents/data_science/data_files")
+ds <- read.csv2("rifiuti_porto_genova_2008_2017_eda_NA.csv", header=TRUE, sep = ";", check.names = FALSE, row.names=1)
+ds <- as.data.frame(t(ds))
+
+library(dplyr) # data reformatting
+library(tidyr) # data reformatting
+library(stringr) # string manipulation
+library(knitr)
+library(kableExtra)
+library(tibble)
+library(ggplot2)
+library(plotly)
+#library(hrbrthemes)
+
+##################################################################################################################################################################################
+
+vuoti <- sum(is.na(ds))
+
+produzione_complessiva <- rowSums(ds, na.rm = T)
+pct <- as.table(produzione_complessiva)
+pc <- as.data.frame(produzione_complessiva)
+pc <- rownames_to_column(pc, var = "year")
+colnames(pc)<- c("year","T")
+
+pc <- pc %>%
+        mutate(year=as.numeric(year))
+
+pericolosi_all <-  select(ds, CER_050103,CER_060106,CER_070104,CER_070208,CER_070601,CER_070704,CER_080111,CER_080117,CER_080121,CER_080409,CER_090101,CER_090105,CER_120114,CER_120116,CER_120301,CER_130205,CER_130206,CER_130502,CER_130507,CER_130802,CER_140603,CER_150110,CER_150202,CER_160104,CER_160107,CER_160121,CER_160211,CER_160213,CER_160215,CER_160303,CER_160305,CER_160403,CER_160504,CER_160506,CER_160508,CER_160601,CER_160602,CER_160708,CER_160709,CER_161001,CER_161003,CER_170106,CER_170204,CER_170301,CER_170410,CER_170503,CER_170603,CER_170605,CER_170903,CER_180103,CER_190105,CER_190205,CER_190207,CER_190810,CER_190813,CER_191307,CER_200121)
+
+pericolosi_all_sum <- sapply(pericolosi_all, sum, na.rm = TRUE)
+pericolosi_totali_per_anno <- rowSums(pericolosi_all, na.rm = T)
+
+##################################################################################################################################################################################
+
+x1 <- select(ds, CER_050103,CER_060106,CER_070104,CER_070208,CER_070601,CER_070704,CER_080111,CER_080117,CER_080121,CER_080409,CER_090101,CER_090105,CER_120114,CER_120116,CER_120301)
+
+x2 <- colSums(x1, na.rm = TRUE)
+x3 <- rbind(x1, x2)
+rownames(x3) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "Totale")
+
+##################################################################################################################################################################################
+
+y1 <- select(ds,CER_130205,CER_130206,CER_130502,CER_130507,CER_130802,CER_140603,CER_150110,CER_150202,CER_160104,CER_160107,CER_160121,CER_160211,CER_160213,CER_160215,CER_160303)
+
+y2 <- colSums(y1, na.rm = TRUE)
+y3 <- rbind(y1, y2)
+rownames(y3) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "Totale")
+
+##################################################################################################################################################################################
+
+z1 <- select(ds, CER_160403,CER_160504,CER_160506,CER_160508,CER_160601,CER_160602,CER_160708,CER_160709,CER_161001,CER_161003,CER_170106,CER_170204,CER_170301,CER_170410,CER_170503)
+
+z2 <- colSums(z1, na.rm = TRUE)
+z3 <- rbind(z1, z2)
+rownames(z3) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "Totale")
+
+##################################################################################################################################################################################
+
+j1 <- select(ds, CER_170603,CER_170605,CER_170903,CER_180103,CER_190105,CER_190205,CER_190207,CER_190810,CER_190813,CER_191307,CER_200121)
+j2 <- colSums(j1, na.rm = TRUE)
+j3 <- rbind(j1, j2)
+rownames(j3) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "Totale")
+
+#j3_empty_col <- j3 %>% add_column(new_col = NA, new_coll = NA, new_conll = NA, new_cojnll = NA, nnn = NA, .after = 11)
+
+```
+## 1. Waste collection in the Port of Genoa (2008-2018).
+
+The classification of waste at European level is based on the European List of Waste (Commission Decision 2000/532/EC – consolidated version) and Annex III to Directive 2008/98/EC (consolidated version). The List of Waste (LoW) provides an EU-wide common terminology for waste classification to ease waste management, including for hazardous waste. The assignment of LoW codes serves in a broad variety of activities, including the transport of waste, installation permits (which often refer also to specific waste codes), or as a basis for waste statistics. According to Decision 2000/532/EC, the LoW should be revised regularly on the basis of new knowledge and, in particular, of research results. The last amendment is Commission Decision 2014/955/EU, which followed a specific study on the review of the European LoW.
+(see https://ec.europa.eu/environment/waste/framework/list.htm for details).
+
+Numbers related to the waste collection in the Port of Genoa 2008-2018 in tonnes according to EU Directive 2008/98/EC "at a  glance", follows. Please note that EWC (European Waste Code) is translated with CER (Codice Europeo Rifiuto) in Italian language.
+
+The dataset organized by CER codes is publicly provided by the Ports of Genoa (https://www.portsofgenoa.com/it/comunicazione-marketing/news/2560-nuovo-piano-gestione-rifiuti.html)\
+\
+\
+**Total in tonnes per year (data)**
+
+```{r echo=FALSE, null_prefix=TRUE, warning = F, message=F}
+
+library(scales)
+print(pct)
+```
+   
+ \
+ 
+ \
+ **Total in tonnes per year (chart)**  
+ \
+```{r echo=FALSE, null_prefix=TRUE, warning = F, message=F}
+
+library(scales)
+
+#kable(pc, "latex", booktabs = T) %>% 
+  #kable_styling(latex_options= "striped")
+
+grafico1 <- ggplot(pc, aes(year, T)) + 
+        geom_point() + 
+        geom_smooth() + 
+        labs(title="Waste collection in the Port of Genoa (t per year, 2008-2018)", x="Year of collection", y="Tonnes per year") +
+        scale_x_continuous(breaks= pretty_breaks())
+
+print(grafico1)
+
+```
+
+\newpage
+## 2. Focus on dangerous waste collection.
+
+The following tables summarize the detail of collection of dangerous waste in the Port of Genoa 2008-2018 in tonnes according to EU Directive 2008/98/CE.
+```{r echo=FALSE, null_prefix=TRUE}
+
+kable(x3, "latex", booktabs = T) %>% 
+  kable_styling(latex_options=c("scale_down","striped"))
+kable(y3, "latex", booktabs = T) %>% 
+  kable_styling(latex_options=c("scale_down","striped"))
+ kable(z3, "latex", booktabs = T) %>% 
+  kable_styling(latex_options=c("scale_down","striped"))
+ kable(j3, "latex", booktabs = T) %>% 
+  kable_styling(latex_options=c("scale_down","striped"))
+
+```
+The overall numbers of collection of dangerous waste in the Port of Genoa 2008-2018 in tonnes according to EU Directive 2008/98/CE follows.
+```{r echo=FALSE, null_prefix=TRUE}
+print(pericolosi_totali_per_anno)
+```
+\newpage
+\
+\
+```{r echo=FALSE, null_prefix=TRUE, warning = F, message=F}
+
+
+f <- as.data.frame(pericolosi_totali_per_anno)
+ff <- rownames_to_column(f, var = "year")
+colnames(ff)<- c("year","tperyear")
+
+ff <- ff %>%
+        mutate(year=as.numeric(year))
+
+library(scales)
+
+grafico2 <- ggplot(ff, aes(year, tperyear)) + 
+  geom_point() + 
+  geom_smooth() + 
+  labs(title="Dangerous waste collection in the Port of Genoa (t per year, 2008-2018)", x="Year of collection", y="Tonnes per year") +
+  scale_x_continuous(breaks= pretty_breaks())
+
+print(grafico2)
+```
+
+\newpage
+
+## 3. Dataset analysis.
+
+**Dataset dimension:** `r dim(ds) ` (obervations of variables)
+
+**Exploratory Data analysis:**
+\
+Dataset contains **`r vuoti ` missing records** (NA).
+
+EDA reveals that the amount of Missing Values may impact tha dataset heavily. Visually, is reported below a heatmap showing evidence of the dataset status (see annexes for bigger image).
+```{r figurename, echo=FALSE, out.width = '30%'}
+knitr::include_graphics("heatmap.png")
+```
+
+\newpage
+**ANNEX - SUMMARY OF DATASET**
+------------------------------
+What follows is the summary of the dataset for waste collection in the Port of Genoa 2008-2018 in tonnes. Information is summarized for each CER code, including min and max values, median, mean, 1st and 3rd quartile, and the number of missing values (NAs).
+\
+```{r echo=FALSE, null_prefix=TRUE, warning = F, message=F}
+summary(ds)
+```
+
+\newpage
+**ANNEX - DATASET HEATMAP**
+```{r echo=FALSE, null_prefix=TRUE, warning=FALSE, message=FALSE, error=FALSE, results = "hide", fig.width = 12, fig.height= 15, fig.align= "center"}
+
+library(png) 
+library(ggplot2) # ggplot() for plotting
+theme_set(
+        theme_minimal() +
+                theme(legend.position = "right")
+)
+library(dplyr) # data reformatting
+library(tidyr) # data reformatting
+library(stringr) # string manipulation
+
+rownames(ds) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018")
+
+ds <- rownames_to_column(ds, var = "year")
+
+ds <- ds %>%
+        mutate(year=as.numeric(year))
+
+ds <- ds %>%
+        gather(key="CER", value="value", -year) %>%
+        setNames(c("year","CER","value")) %>%
+        mutate(CER=factor(CER)) %>%
+        mutate(value=as.numeric(value))
+
+p <- ggplot(ds,aes(x=year,y=CER,fill=value))+
+        #add border white colour of line thickness 0.25 
+        geom_tile(colour="white",size=0.40)+
+        #remove x and y axis labels
+        labs(x="Year of collection",y="Tonnes per CER code")+
+        #set a base size for all fonts
+        theme_grey(base_size=9)+
+        #theme options
+        #scale_fill_continuous(na.value = 'white')
+        scale_fill_gradient(low = "gold2", high = "darkred", na.value = "grey96")
+        theme(
+                #bold font for legend text
+                legend.text=element_text(face="bold"),
+                #set thickness of axis ticks
+                axis.ticks=element_line(size=0.4),
+                #remove plot background
+                plot.background=element_blank(),
+                #remove plot border
+                panel.border=element_blank())
+
+print(p)
+```

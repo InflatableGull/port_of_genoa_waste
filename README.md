@@ -1,4 +1,4 @@
-# port_of_genoa_waste
+# Waste collection in the Port of Genoa 2008–2018: a data analysis.
 Data Science tools (RStudio) and methodologies (Data Cleaning, Exploratory Data Analysis) applied to a dataset
 provided publicly by the Port Authority.
 

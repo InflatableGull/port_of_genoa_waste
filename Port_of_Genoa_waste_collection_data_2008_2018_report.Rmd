@@ -51,7 +51,7 @@ knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
 ```{r echo=FALSE, message=FALSE}
 
 setwd("/Users/usersgianazzi/Documents/data_science/data_files")
-ds <- read.csv2("rifiuti_porto_genova_2008_2017_eda_NA.csv", header=TRUE, sep = ";", check.names = FALSE, row.names=1)
+ds <- read.csv2("rifiuti_porto_genova_2008_2017_eda_0.csv", header=TRUE, sep = ";", check.names = FALSE, row.names=1)
 ds <- as.data.frame(t(ds))
 
 library(dplyr) # data reformatting
@@ -118,8 +118,7 @@ rownames(j3) <- c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"
 ```
 ## 1. Waste collection in the Port of Genoa (2008-2018).
 
-The classification of waste at European level is based on the European List of Waste (Commission Decision 2000/532/EC – consolidated version) and Annex III to Directive 2008/98/EC (consolidated version). The List of Waste (LoW) provides an EU-wide common terminology for waste classification to ease waste management, including for hazardous waste. The assignment of LoW codes serves in a broad variety of activities, including the transport of waste, installation permits (which often refer also to specific waste codes), or as a basis for waste statistics. According to Decision 2000/532/EC, the LoW should be revised regularly on the basis of new knowledge and, in particular, of research results. The last amendment is Commission Decision 2014/955/EU, which followed a specific study on the review of the European LoW.  
-(see https://ec.europa.eu/environment/waste/framework/list.htm for details).
+The classification of waste at European level is based on the European List of Waste (Commission Decision 2000/532/EC – consolidated version) and Annex III to Directive 2008/98/EC (consolidated version). The List of Waste (LoW) provides an EU-wide common terminology for waste classification to ease waste management, including for hazardous waste. The assignment of LoW codes serves in a broad variety of activities, including the transport of waste, installation permits (which often refer also to specific waste codes), or as a basis for waste statistics. According to Decision 2000/532/EC, the LoW should be revised regularly on the basis of new knowledge and, in particular, of research results. The last amendment is Commission Decision 2014/955/EU, which followed a specific study on the review of the European LoW. (see https://ec.europa.eu/environment/waste/framework/list.htm for details).
 
 Numbers related to the waste collection in the Port of Genoa 2008-2018 in tonnes according to EU Directive 2008/98/EC "at a  glance", follows. Please note that EWC (European Waste Code) is translated with CER (Codice Europeo Rifiuto) in Italian language.
 
@@ -204,13 +203,13 @@ print(grafico2)
 
 ## 3. Dataset analysis.
 
-**Dataset dimension:** `r dim(ds) ` (obervations of variables)
+**Dataset dimension:** `r dim(ds) ` (observations of variables)
 
 **Exploratory Data analysis:**
 \
 Dataset contains **`r vuoti ` missing records** (NA).
 
-EDA reveals that the amount of Missing Values may impact tha dataset heavily. Visually, is reported below a heatmap showing evidence of the dataset status (see annexes for bigger image).
+Visually, is reported below a heatmap showing evidence of the dataset status (see annexes for bigger image).
 ```{r figurename, echo=FALSE, out.width = '30%'}
 knitr::include_graphics("heatmap.png")
 ```
@@ -260,7 +259,7 @@ p <- ggplot(ds,aes(x=year,y=CER,fill=value))+
         theme_grey(base_size=9)+
         #theme options
         #scale_fill_continuous(na.value = 'white')
-        scale_fill_gradient(low = "gold2", high = "darkred", na.value = "grey96")
+        scale_fill_gradient(low = "grey96", high = "darkred", na.value = "grey96")
         theme(
                 #bold font for legend text
                 legend.text=element_text(face="bold"),
@@ -272,4 +271,6 @@ p <- ggplot(ds,aes(x=year,y=CER,fill=value))+
                 panel.border=element_blank())
 
 print(p)
+
+ggsave("heatmap.png", scale = 1, limitsize = TRUE)
 ```

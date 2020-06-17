@@ -1,0 +1,16 @@
+/* Whole document: */
+body{
+  font-family: Verdana;
+  font-size: 10pt;
+  text-align: justify
+}
+/* Headers */
+h1{
+  font-size: 17pt;
+}
+
+h2,h3,h4,h5,h6{
+  font-size: 12pt;
+  color: #4096EE;
+  font-weight: bold;
+}

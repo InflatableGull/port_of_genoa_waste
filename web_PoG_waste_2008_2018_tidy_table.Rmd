@@ -1,0 +1,73 @@
+---
+output:
+  html_document:
+    css: style.css
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment=NA)
+```
+
+```{r}
+# A Prefix nulling hook.
+
+# Make sure to keep the default for normal processing.
+default_output_hook <- knitr::knit_hooks$get("output")
+
+# Output hooks handle normal R console output.
+knitr::knit_hooks$set( output = function(x, options) {
+
+  comment <- knitr::opts_current$get("comment")
+  if( is.na(comment) ) comment <- ""
+  can_null <- grepl( paste0( comment, "\\s*\\[\\d?\\]" ),
+                     x, perl = TRUE)
+  do_null <- isTRUE( knitr::opts_current$get("null_prefix") )
+  if( can_null && do_null ) {
+    # By default R print output aligns at the right brace.
+    align_index <- regexpr( "\\]", x )[1] - 1
+    # Two cases: start or newline
+    re <- paste0( "^.{", align_index, "}\\]")
+    rep <- comment
+    x <- gsub( re, rep,  x )
+    re <- paste0( "\\\n.{", align_index, "}\\]")
+    rep <- paste0( "\n", comment )
+    x <- gsub( re, rep,  x )
+  }
+
+  default_output_hook( x, options )
+
+})
+
+knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
+```
+
+
+```{r echo=FALSE, message=FALSE}
+source('web_main_code.R')
+```
+<H1><div style="text-align: justify; font-weight: bold; color: #4096EE">Waste Collection in the Port of Genoa (2008-2018)</div></H1>   
+
+<div style="text-align: justify">
+The Data Frame in is <b>tidy form</b> contains <b>`r RowNum` </b>observations, <b>`r ColNum`</b> variables, and <b>`r vuoti` </b>missing record(s) (NA).<br><br>
+The following tables summarize the detail of collection of waste in the Port of Genoa 2008-2018 in tonnes according to EU Directive 2008/98/CE.
+
+<H3>Compact view</H3>
+```{r echo=FALSE, null_prefix=TRUE, rows.print=15, cols.print= 11}
+datatable(
+  ds, class = 'cell-border stripe', extensions = 'FixedColumns',
+  options = list(
+    dom = 'Bfrtip',
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 2, rightColumns = 1)
+  )
+)
+```
+<H3>Overall table</H3>
+```{r echo=FALSE, null_prefix=TRUE, rows.print=15, cols.print= 11}
+kable(ds) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left", fixed_thead = T)
+```
+  
+\
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Licenza Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br /><br />Quest'opera è distribuita con Licenza <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribuzione - Non commerciale 4.0 Internazionale</a>.

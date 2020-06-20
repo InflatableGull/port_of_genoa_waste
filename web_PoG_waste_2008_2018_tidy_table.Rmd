@@ -4,7 +4,6 @@ output:
     css: style.css
     df_print: paged
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, comment=NA)
 ```

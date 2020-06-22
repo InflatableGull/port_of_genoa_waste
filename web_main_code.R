@@ -1,4 +1,5 @@
 # Libraries needed
+
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -7,6 +8,7 @@ library(knitr)
 library(kableExtra)
 library(scales)
 library(tibble)
+library(DT)
 
 # Read the source file
 setwd("/Users/usersgianazzi/Documents/data_science/data_files")
@@ -22,6 +24,15 @@ ds <- ds %>%
 # Data reshaped, from long to wide format
 ds_wide <- ds %>%
         spread(CER, tonnes)
+
+# How many recors are missing?
+vuoti <- sum(is.na(ds_wide))
+
+# Dimension of the tidy dataset
+dimension <- dim(ds)
+RowNum <- nrow(ds)
+ColNum <- ncol(ds)
+sum(is.na(ds))
 
 # A column with rows totals is added
 ds_wide_presentation <- mutate(ds_wide, total = rowSums(ds_wide[,-1], na.rm = TRUE))
